@@ -3,7 +3,9 @@ import * as React from "react";
 import { GetPermissionData } from "../api/permissionApi";
 import { useNavigate } from "react-router-dom";
 
+import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
 import { DataGrid } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -14,6 +16,11 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import { Link } from "react-router-dom";
 import AnimatedModal from "../Components/AnimatedModal";
 import ModifyPermission from "./ModifyPermission";
+import moment from "moment";
+import { styled } from "@mui/material/styles";
+import Paper from "@mui/material/Paper";
+import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 
 const style = {
   position: "absolute",
@@ -27,14 +34,13 @@ const style = {
   p: 4,
 };
 
-const bull = (
-  <Box
-    component="span"
-    sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
-  >
-    •
-  </Box>
-);
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: "center",
+  color: theme.palette.text.secondary,
+}));
 
 // function Modal({ children }) {
 //   return ReactDOM.createPortal(children, document.body);
@@ -75,20 +81,21 @@ const columns = [
   {
     field: "nombreEmpleado",
     headerName: "Nombre",
-    width: 200,
+    width: 150,
     editable: false,
+    renderCell: (params) => <Link>{params.value}</Link>,
   },
   {
     field: "apellidoEmpleado",
     headerName: "Apellido",
-    width: 200,
+    width: 150,
     editable: false,
   },
   {
     field: "tipoPermisoDesc",
     headerName: "Permiso",
     // type: 'number',
-    width: 110,
+    width: 80,
     editable: false,
   },
   {
@@ -96,12 +103,10 @@ const columns = [
     headerName: "Fecha Permiso",
     description: "Fecha en que se otorga el permiso.",
     type: "datetime",
-    width: 110,
+    width: 180,
     editable: false,
-
-    // width: 160,
-    // valueGetter: (params) =>
-    //   `${params.row.NombreEmpleado || ''} ${params.row.ApellidoEmpleado || ''}`,
+    valueFormatter: (params) =>
+      moment(params?.value).format("DD/MM/YYYY hh:mm A"),
   },
 ];
 
@@ -149,7 +154,7 @@ const Home = () => {
     //navigate(`/modifypermission?id=${dataId}`, { replace: true });
   };
 
-  const handleClose = () => setOpen(false);
+  // const handleClose = () => setOpen(false);
 
   useEffect(() => {
     CallPermissionData();
@@ -158,32 +163,42 @@ const Home = () => {
   const CallPermissionData = () => {
     setIsLoading(true);
 
-    GetPermissionData().then((response) => {
-      console.log("respuesta api", response);
+    try {
+      GetPermissionData().then((response) => {
+        console.log("respuesta api", response);
 
-      if (response?.ok && response.ok === false) {
-        setPropsModalError({
-          title: "HA OCURRIDO UN ERROR AL INTENTAR VERIFICAR EL CERTIFICADO",
-          text: "Por favor intenta nuevamente. Si el problema persiste contacta a tu ejecutiva.",
-        });
+        if (response?.ok && response.ok === false) {
+          setPropsModalError({
+            title: "Error loading API",
+            text: "Please try again.",
+          });
 
-        // Swal.fire({
-        //   title: 'Error llamando a API!',
-        //   text: 'You clicked the button.',
-        //   icon: 'error'
-        // });
+          // Swal.fire({
+          //   title: 'Error llamando a API!',
+          //   text: 'You clicked the button.',
+          //   icon: 'error'
+          // });
 
-        setIsLoading(false);
-        setOpen(true);
-      } else {
-        if (response) {
-          setPermissionList(response);
+          setIsLoading(false);
+          setOpen(true);
+        } else {
+          if (response) {
+            setPermissionList(response);
+          }
+
+          setOpen(false);
+          setIsLoading(false);
         }
+      });
+    } catch {
+      setIsLoading(false);
+      setPropsModalError({
+        title: "Error loading API",
+        text: "Please try again.",
+      });
 
-        setOpen(false);
-        setIsLoading(false);
-      }
-    });
+      setShowModalError(true);
+    }
   };
 
   // const headings = heroes.map((hero, index)=>
@@ -191,9 +206,34 @@ const Home = () => {
 
   return (
     <>
-      <AnimatedModal></AnimatedModal>
+      <Modal
+        open={showModalError}
+        // onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Error
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Error
+          </Typography>
+        </Box>
+      </Modal>
 
-      <LoadingButton
+      <Grid container spacing={2}>
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={isLoading}
+          // onClick={handleClose}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+
+        {/* <AnimatedModal></AnimatedModal> */}
+
+        {/* <LoadingButton
         type="submit"
         disabled={isLoading}
         loading={isLoading}
@@ -202,9 +242,9 @@ const Home = () => {
         sx={{ mb: 3 }}
       >
         Cargar
-      </LoadingButton>
+      </LoadingButton> */}
 
-      <Card sx={{ minWidth: 275 }}>
+        {/* <Card sx={{ minWidth: 275 }}>
         <CardContent>
           <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
             Word of the Day
@@ -224,54 +264,69 @@ const Home = () => {
         <CardActions>
           <Button size="small">Learn More</Button>
         </CardActions>
-      </Card>
+      </Card> */}
 
-      {/* <Button onClick={handleOpen}>Open modal</Button>
-      <Modal      
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Error
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Error
-          </Typography>
-        </Box>
-      </Modal> */}
+        {/* Buttons */}
+        <Grid item xs={6} md={6} mt={4}>
+          <Item>
+            <Button component={Link} to="/RequestPermission" fullWidth>
+              Request permission
+            </Button>
+          </Item>
+        </Grid>
+        <Grid item xs={6} md={6} mt={4}>
+          <Item>
+            <Button component={Link} to="/RegisterNewPermision" fullWidth>
+              Register a new permission
+            </Button>
+          </Item>
+        </Grid>
 
-      <Button component={Link} to="/RegisterNewPermision" fullWidth>
-        Register a new permission
-      </Button>
+        {/* Grid section */}
+        <Grid item xs={8} mt={4}>
+          <Item>
+            <Box>
+              <h2>Permission List</h2>
+              <DataGrid
+                rows={permissionList}
+                columns={columns}
+                onRowClick={(rows) => {
+                  handleModifyPermission(rows.id);
+                }}
+                initialState={{
+                  pagination: {
+                    paginationModel: {
+                      pageSize: 5,
+                    },
+                  },
+                }}
+                pageSizeOptions={[5]}
+                // checkboxSelection
+                disableRowSelectionOnClick
+                sx={{
+                  // disable cell selection style
+                  "& .MuiDataGrid-cell:focus": {
+                    outline: "none",
+                  },
+                  // pointer cursor on ALL rows
+                  "& .MuiDataGrid-row:hover": {
+                    cursor: "pointer",
+                    backgroundColor: "#495057",
+                  },
+                }}
+              />
+            </Box>
+          </Item>
+        </Grid>
 
-      <Button component={Link} to="/RequestPermission" fullWidth>
-        Request permission
-      </Button>
-
-      <Box sx={{ height: 500, width: 960 }}>
-        <DataGrid
-          rows={permissionList}
-          columns={columns}
-          onRowClick={(rows) => {
-            handleModifyPermission(rows.id);
-          }}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
-              },
-            },
-          }}
-          pageSizeOptions={[5]}
-          // checkboxSelection
-          disableRowSelectionOnClick
-        />
-      </Box>
-
-      {idToModify ? <ModifyPermission idToModify={idToModify} /> : ""}
+        {/* Modify section */}
+        <Grid item xs={4} mt={4}>
+          {/* {idToModify ? <ModifyPermission idToModify={idToModify} /> : ""} */}
+          <Item>
+            <ModifyPermission idToModify={idToModify} />
+          </Item>
+        </Grid>
+      </Grid>
     </>
   );
 };

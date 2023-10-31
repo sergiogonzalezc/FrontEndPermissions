@@ -28,7 +28,6 @@ const AppRouter = () => {
           <Route path="Home" element={<Home></Home>}></Route>
           <Route path="requestpermission" element={<RequestPermission></RequestPermission>}></Route>
           <Route path="registernewpermision" element={<RegisterNewPermision></RegisterNewPermision>}></Route>
-          <Route path="modifypermission" element={<ModifyPermission></ModifyPermission>}></Route>
 
           {/* default route */}
           <Route path="/" element={<Navigate to="/home"></Navigate>}></Route>

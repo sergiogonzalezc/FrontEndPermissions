@@ -79,7 +79,7 @@ const RequestPermission = () => {
           >
             <TextField
               type="text"
-              label="Nombre/FirtName"
+              label="Nombre/Name"
               value={values.nombreEmpleado}
               onChange={handleChange}
               name="nombreEmpleado"
@@ -94,7 +94,7 @@ const RequestPermission = () => {
 
         <TextField
               type="text"
-              label="Apellido/LastName"
+              label="Apellido/Last name"
               value={values.apellidoEmpleado}
               onChange={handleChange}
               name="apellidoEmpleado"

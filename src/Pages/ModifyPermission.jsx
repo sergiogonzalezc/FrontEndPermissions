@@ -3,20 +3,22 @@ import { Formik } from "formik";
 import {
   GetPermissionByIdData,
   ModifyPermissionData,
+  GetAllPermissionTypesData,
 } from "../api/permissionApi";
 
 import * as Yup from "yup";
 import parse from "date-fns/parse";
 
+import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { Link } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Modal from "@mui/material/Modal";
 import Autocomplete from "@mui/material/Autocomplete";
 
-const ModifyPermission = (id) => {
-  const [idToModify, setIdToModify] = useState();
+const ModifyPermission = ({ idToModify }) => {
+  // const [idToModify, setIdToModify] = useState();
   const [showModalError, setShowModalError] = useState(false);
   const [propsModalError, setPropsModalError] = useState({
     title: undefined,
@@ -26,10 +28,8 @@ const ModifyPermission = (id) => {
   const [permissionValues, setPermissionValues] = useState({
     id: 0,
     nombrePostulante: "",
-    apellidoPostulante: "",
-    apellidoMaterno: "",
-    TipoPermisoCode: 0,
-    tipoPermisoDesc: "",
+    apellidoPostulante: "",    
+    TipoPermiso: 0,    
     fechaPermiso: "",
   });
 
@@ -37,7 +37,8 @@ const ModifyPermission = (id) => {
   const [openConfirmation, setOpenConfirmation] = useState(false);
   const [handleCloseConfirmation, setHandleCloseConfirmation] = useState(false);
   const [openErrorModal, setOpenErrorModal] = useState(false);
-  const [permissionType, setPermissionType] = useState("1");
+  const [permissionType, setPermissionType] = useState();
+  const [permissionTypeList, setPermissionTypeList] = useState([]);
   // const ModifyIdPrincipal = async () => {
   //   const search = useLocation().search;
   //   const id = new URLSearchParams(search).get("id");
@@ -50,20 +51,22 @@ const ModifyPermission = (id) => {
 
   useEffect(() => {
     getDataPermission();
+  }, [idToModify]);
+
+  useEffect(() => {
+    getAllPermissionTypes();
   }, []);
 
-  // useEffect(() => {
-  //   ModifyIdPrincipal();
-  // }, [idToModify]);
-
-  const getDataPermission = async () => {
-    GetPermissionByIdData(id).then((response) => {
-      console.log("respuesta api get data id", id, response);
+  const getAllPermissionTypes = async () => {
+    setIsLoading(true);
+    
+    GetAllPermissionTypesData().then((response) => {
+      console.log("list types", response);
 
       if (response?.ok && response.ok === false) {
         setPropsModalError({
-          title: "HA OCURRIDO UN ERROR AL INTENTAR VERIFICAR EL CERTIFICADO",
-          text: "Por favor intenta nuevamente. Si el problema persiste contacta a tu ejecutiva.",
+          title: "Error loading API",
+          text: "Please try again.",
         });
 
         setIsLoading(false);
@@ -72,24 +75,56 @@ const ModifyPermission = (id) => {
       } else {
         if (response) {
           // if delete is OK
-          console.log("modify OK");
+          console.log("list types OK");
           setOpenConfirmation(true); // show modal Ok
 
-          setPermissionValues({
-            id: response.id,
-            nombrePostulante: response.nombrePostulante,
-            apellidoPostulante: response.apellidoPostulante,
-            apellidoMaterno: response.apellidoMaterno,
-            TipoPermisoCode: response.TipoPermisoCode,
-            tipoPermisoDesc: response.tipoPermisoDesc,
-            fechaPermiso: response.fechaPermiso,
-          });
+          setPermissionTypeList(response);
         }
 
         setOpenErrorModal(false);
         setIsLoading(false);
       }
     });
+  };
+
+  const getDataPermission = async () => {
+    if (idToModify && idToModify !== "undefined" && idToModify !== "") {
+      setIsLoading(true);
+      GetPermissionByIdData(idToModify).then((response) => {
+        console.log("respuesta api get data id", idToModify, response);
+
+        if (response?.ok && response.ok === false) {
+          setPropsModalError({
+            title: "Error loading API",
+            text: "Please try again.",
+          });
+
+          setIsLoading(false);
+          setOpenErrorModal(true); // show error
+          setOpenConfirmation(false);
+        } else {
+          if (response) {
+            // if delete is OK
+            console.log("modify read Ok",response);
+            setOpenConfirmation(true); // show modal Ok
+
+            setPermissionValues({
+              id: response.id,
+              nombreEmpleado: response.nombreEmpleado,
+              apellidoEmpleado: response.apellidoEmpleado,
+              tipoPermisoCode: response.tipoPermisoCode,
+              tipoPermisoDesc: response.tipoPermisoDesc,
+              fechaPermiso: response.fechaPermiso,
+            });
+          }
+
+          setOpenErrorModal(false);
+          setIsLoading(false);
+        }
+      });
+
+      setIsLoading(false);
+    }
   };
 
   const onSubmit = async (
@@ -151,17 +186,28 @@ const ModifyPermission = (id) => {
     console.log("seteado tipo: ", type);
   };
 
-  // Top 100 films as rated by IMDb users. http://www.imdb.com/chart/top
-  const top100Films = [
-    { id: 1, descripcion: "user" },
-    { id: 2, descripcion: "Admin" },
-  ];
+  const defProps = {
+    options: permissionTypeList.map((option) => ({
+      id: option.id,
+      name: option.descripcion,
+    })),
+    getOptionLabel: (options) => options.id + "-" + options.name,
+  };
+
+  const initialValues = {
+    id: 0,
+    nombreEmpleado: "",
+    apellidoEmpleado: "",
+    tipoPermisoCode: 1,
+    tipoPermisoDesc:"",
+    fechaPermiso: ""
+  }
 
   return (
     <>
       <Modal
         open={openErrorModal}
-        onClose={handleCloseConfirmation}
+        // onClose={handleCloseConfirmation}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -175,6 +221,14 @@ const ModifyPermission = (id) => {
         </Box>
       </Modal>
 
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        // onClick={handleClose}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
       <Box sx={{ mt: 8, maxWidth: 400, mx: "auto", textAlign: "center" }}>
         <Avatar sx={{ mx: "auto", bgcolor: "#444" }}>
           <LockOutlinedIcon />
@@ -185,14 +239,11 @@ const ModifyPermission = (id) => {
         </Typography>
 
         <Formik
-          initialValues={{
-            nombreEmpleado: "",
-            apellidoEmpleado: "",
-            tipoPermiso: "1",
-            fechaPermiso: "",
-          }}
+         
+          initialValues={initialValues || permissionValues}
           onSubmit={onSubmit}
           validationSchema={validationSchema}
+          enableReinitialize
         >
           {({
             handleSubmit,
@@ -203,10 +254,10 @@ const ModifyPermission = (id) => {
             touched,
             handleBlur,
           }) => (
-            <Box onSubmit={handleSubmit} component="form" sx={{ mt: 1 }}>
+            <Box onSubmit={handleSubmit} component="form" sx={4}>
               <TextField
                 type="text"
-                label="Nombre/FirtName"
+                label="Nombre/Name"
                 value={values.nombreEmpleado}
                 onChange={handleChange}
                 name="nombreEmpleado"
@@ -225,7 +276,7 @@ const ModifyPermission = (id) => {
 
               <TextField
                 type="text"
-                label="Apellido/LastName"
+                label="Apellido/Last name"
                 value={values.apellidoEmpleado}
                 onChange={handleChange}
                 name="apellidoEmpleado"
@@ -246,15 +297,19 @@ const ModifyPermission = (id) => {
                 isOptionEqualToValue={(option, value) =>
                   option.valueOf === value.valueOf
                 }
-                value={permissionType}
+                {...defProps}
+                value={permissionType || null}
                 onChange={(event, value) => setTipo(value)}
-                inputValue={permissionType}
+                // inputValue={permissionType}
                 onInputChange={(event, newInputValue) => {
                   setTipo(newInputValue);
                 }}
                 disablePortal
                 id="tipoPermiso"
-                options={top100Films.map((option) => option.descripcion)}
+                // options={  permissionTypeList.map((option) => ({
+                //   id: option.id,
+                //   name: option.descripcion,
+                // }))}
                 sx={{ mb: 3 }}
                 fullWidth
                 renderInput={(params) => (
@@ -296,22 +351,14 @@ const ModifyPermission = (id) => {
 
               <LoadingButton
                 type="submit"
-                // disabled={isSubmitting}
-                // loading={isSubmitting}
+                disabled={isSubmitting}
+                loading={isSubmitting}
                 variant="contained"
                 fullWidth
                 sx={{ mb: 3 }}
               >
-                Register
+                Send Modification
               </LoadingButton>
-
-              <Button component={Link} to="/" fullWidth>
-                ¿Ya tienes cuenta? Ingresa
-              </Button>
-
-              <Button component={Link} to="/" fullWidth>
-                Volver
-              </Button>
             </Box>
           )}
         </Formik>
