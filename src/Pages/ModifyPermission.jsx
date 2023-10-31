@@ -28,8 +28,8 @@ const ModifyPermission = ({ idToModify }) => {
   const [permissionValues, setPermissionValues] = useState({
     id: 0,
     nombrePostulante: "",
-    apellidoPostulante: "",    
-    TipoPermiso: 0,    
+    apellidoPostulante: "",
+    TipoPermiso: 0,
     fechaPermiso: "",
   });
 
@@ -59,7 +59,7 @@ const ModifyPermission = ({ idToModify }) => {
 
   const getAllPermissionTypes = async () => {
     setIsLoading(true);
-    
+
     GetAllPermissionTypesData().then((response) => {
       console.log("list types", response);
 
@@ -105,7 +105,7 @@ const ModifyPermission = ({ idToModify }) => {
         } else {
           if (response) {
             // if delete is OK
-            console.log("modify read Ok",response);
+            console.log("modify read Ok", response);
             setOpenConfirmation(true); // show modal Ok
 
             setPermissionValues({
@@ -128,18 +128,61 @@ const ModifyPermission = ({ idToModify }) => {
   };
 
   const onSubmit = async (
-    { nombreEmpleado, apellidoEmpleado, tipoPermiso, fechaPermiso },
+    { id, nombreEmpleado, apellidoEmpleado, tipoPermiso, fechaPermiso },
     { setSubmitting, setErrors, resetForm }
   ) => {
     try {
-      try {
-        console.log(dateSchema.validateSync(fechaPermiso));
-      } catch (e) {
-        console.log(e.errors);
-      }
+      console.log(
+        "modificado datos",
+        id,
+        nombreEmpleado,
+        apellidoEmpleado,
+        tipoPermiso,
+        fechaPermiso
+      );
 
-      //await register({ email, password });
-      console.log("user registered");
+      setIsLoading(true);
+      ModifyPermissionData(
+        id,
+        nombreEmpleado,
+        apellidoEmpleado,
+        tipoPermiso,
+        fechaPermiso
+      ).then((response) => {
+        console.log("respuesta api get data id", idToModify, response);
+
+        if (response?.ok && response.ok === false) {
+          setPropsModalError({
+            title: "Error loading API",
+            text: "Please try again.",
+          });
+
+          setIsLoading(false);
+          setOpenErrorModal(true); // show error
+          setOpenConfirmation(false);
+        } else {
+          if (response) {
+            // if delete is OK
+            console.log("modify read Ok", response);
+            setOpenConfirmation(true); // show modal Ok
+
+            setPermissionValues({
+              id: response.id,
+              nombreEmpleado: response.nombreEmpleado,
+              apellidoEmpleado: response.apellidoEmpleado,
+              tipoPermisoCode: response.tipoPermisoCode,
+              tipoPermisoDesc: response.tipoPermisoDesc,
+              fechaPermiso: response.fechaPermiso,
+            });
+          }
+
+          setOpenErrorModal(false);
+          setIsLoading(false);
+        }
+      });
+
+      setIsLoading(false);
+
       resetForm();
     } catch (error) {
       console.log(error.code);
@@ -155,7 +198,7 @@ const ModifyPermission = ({ idToModify }) => {
   const validationSchema = Yup.object().shape({
     nombreEmpleado: Yup.string().trim().min(1).required(),
     apellidoEmpleado: Yup.string().trim().min(1).required(),
-    tipoPermiso: Yup.string().trim().min(1).required(),
+    tipoPermisoCode: Yup.string().trim().min(1).required(),
     fechaPermiso: Yup.date()
       .transform(function (value, originalValue) {
         if (this.isType(value)) {
@@ -196,12 +239,12 @@ const ModifyPermission = ({ idToModify }) => {
 
   const initialValues = {
     id: 0,
-    nombreEmpleado: "",
+    nombreEmpleado: "sssss",
     apellidoEmpleado: "",
     tipoPermisoCode: 1,
-    tipoPermisoDesc:"",
-    fechaPermiso: ""
-  }
+    // tipoPermisoDesc: "",
+    fechaPermiso: "",
+  };
 
   return (
     <>
@@ -239,8 +282,7 @@ const ModifyPermission = ({ idToModify }) => {
         </Typography>
 
         <Formik
-         
-          initialValues={initialValues || permissionValues}
+          initialValues={permissionValues || initialValues}
           onSubmit={onSubmit}
           validationSchema={validationSchema}
           enableReinitialize

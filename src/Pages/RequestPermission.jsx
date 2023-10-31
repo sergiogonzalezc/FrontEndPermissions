@@ -6,6 +6,9 @@ import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Link } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import {
+  RequestPermissionData
+} from "../api/permissionApi";
 
 const RequestPermission = () => {
 

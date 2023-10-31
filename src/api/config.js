@@ -5,7 +5,6 @@ import axios from "axios";
 
 const { VITE_API_URL } = getEnvVariables();
 
-
 //Token
 const sessionToken = "";
 
@@ -42,19 +41,15 @@ const baseAxiosJsonHeaders = {
 };
 
 const getBaseAxiosJsonHeaders = () => {
-  
-  if(sessionToken !== ""){
+  if (sessionToken !== "") {
     return {
       headers: {
         ...baseTokenHeaders,
-      }
-    }
+      },
+    };
+  } else {
   }
-  else {
-    
-    
-  }
-}
+};
 
 //FORMDATA
 const baseAxiosFormDataHeaders = {
@@ -65,24 +60,13 @@ const baseAxiosFormDataHeaders = {
 };
 
 const getBaseAxiosFormDataHeaders = () => {
-  if(sessionToken !== ""){
-    return {
-      headers: {
-        ...baseTokenHeaders,
-        "Content-Type": "multipart/form-data",
-      }
-    }
-  }
-  else {
-    const reduxStateStore = store.getState();
-    return {
-      headers: {
-        Authorization: `Bearer ${reduxStateStore.global.token}`,
-        "Content-Type": "multipart/form-data",
-      }
-    }
-  }
-}
+  return {
+    headers: {
+      ...baseTokenHeaders,
+      "Content-Type": "multipart/form-data",
+    },
+  };
+};
 
 //#endregion AXIOS
 
@@ -104,7 +88,7 @@ export const TokenHeaders = baseTokenHeaders;
 //** Exports Functions **/
 export const getUrl = (inUrl) => `${baseURL}${inUrl}`;
 
-console.log('baseURL',baseURL);
+console.log("baseURL", baseURL);
 
 export const InjectTokenHeader = (token) => ({
   headers: {
@@ -114,10 +98,10 @@ export const InjectTokenHeader = (token) => ({
 
 export const MAxios = () => {
   const axiosCreated = axios.create({
-  baseURL,
-  ...getBaseAxiosJsonHeaders(),
-});
-return axiosCreated;
+    baseURL,
+    ...getBaseAxiosJsonHeaders(),
+  });
+  return axiosCreated;
 };
 
 export const MAxiosFormData = () => {
@@ -126,8 +110,7 @@ export const MAxiosFormData = () => {
     ...getBaseAxiosFormDataHeaders(),
   });
   return axiosCreated;
-} 
-
+};
 
 // export const FetchDownloadFile = async (endpoint, data, fileName, token) => {
 
@@ -158,5 +141,5 @@ export const MAxiosFormData = () => {
 //         a.remove();
 //         return(true)
 //       }
-//     }   
+//     }
 // };
