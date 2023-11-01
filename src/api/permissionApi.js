@@ -100,9 +100,6 @@ export const GetPermissionByIdDataAxxios = async (token, id) => {
   const endpoint = `${VITE_API_URL}/Permissions/GetPermissionById?id=${id}`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
-  // let formData = new FormData();
-  // formData.append("email", email);
-  // formData.append("pass", pass);
 
   return await MAxios()
     //.post(endpoint, formData, tokenHeader)
@@ -128,16 +125,10 @@ export const GetPermissionByIdDataAxxios = async (token, id) => {
     });
 };
 
-export const ModifyPermissionData = async (
-  id,
-  nombreEmpleado,
-  apellidoEmpleado,
-  tipoPermiso,
-  fechaPermiso
-) => {
+export const ModifyPermissionData = async (inputData) => {
   try {
-    console.log("init call api Permission by Id", id);
-    const response = await ModifyPermissionDataAxxios(null, id,nombreEmpleado,apellidoEmpleado,tipoPermiso,fechaPermiso);
+    //console.log("init call api Permission by Id", inputData.Id);
+    const response = await ModifyPermissionDataAxxios(null, inputData);
     return response;
   } catch (error) {
     console.log("error_calling Maxios", error);
@@ -145,28 +136,21 @@ export const ModifyPermissionData = async (
   }
 };
 
-export const ModifyPermissionDataAxxios = async (
-  token,
-  id,
-  nombreEmpleado,
-  apellidoEmpleado,
-  tipoPermiso,
-  fechaPermiso
-) => {
+export const ModifyPermissionDataAxxios = async (token, inputData) => {
   const { VITE_API_URL } = getEnvVariables();
 
   const endpoint = `${VITE_API_URL}/Permissions/ModifyPermission`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
-  let formData = new FormData();
-  formData.append("id", id);
-  formData.append("nombreEmpleado", nombreEmpleado);
-  formData.append("apellidoEmpleado", apellidoEmpleado);
-  formData.append("tipoPermiso", tipoPermiso);
-  formData.append("fechaPermiso", fechaPermiso);
+  // let formData = new FormData();
+  // formData.append("id", inputData.Id);
+  // formData.append("nombreEmpleado", inputData.NombreEmpleado);
+  // formData.append("apellidoEmpleado", inputData.ApellidoEmpleado);
+  // formData.append("tipoPermiso", inputData.TipoPermiso);
+  // formData.append("fechaPermiso", inputData.FechaPermiso);
 
-  return await MAxiosFormData()
-    .put(endpoint, formData)
+  return await MAxios()
+    .put(endpoint, inputData)
     .then((res) => res.data)
     .catch(function (error) {
       if (error.response) {
@@ -249,33 +233,22 @@ export const GetAllPermissionTypesDataAxxios = async (token) => {
     });
 };
 
-export const RequestPermissionData = async (
-  nombreEmpleado,
-  apellidoEmpleado,
-  tipoPermiso
-) => {
+
+
+export const GetAllPermissionTypeByIdData = async (id) => {
   try {
-    const response = await RequestPermissionDataAxxios(
-      null,
-      nombreEmpleado,
-      apellidoEmpleado,
-      tipoPermiso
-    );
+    const responseTypeItem = await GetAllPermissionTypeByIdDataAxxios(null,id);
 
-    if (response.success) {
+    if (responseTypeItem.success) {
       // correct load
-      const permissionStatus = response.dataList.map((permissionItem) => ({
-        permissionOk: permissionItem.permissionOk,
-        fechaPermiso: permissionItem.fechaPermiso,
-      }));
+      return responseTypeItem.data;
 
-      return permissionStatus;
     } else {
       return {
         ok: false,
-        errorMessage: response.message,
-        code: response.code,
-        status: response.status,
+        errorMessage: responseTypeItem.message,
+        code: responseTypeItem.code,
+        status: responseTypeItem.status,
       };
     }
   } catch (error) {
@@ -284,24 +257,15 @@ export const RequestPermissionData = async (
   }
 };
 
-export const RequestPermissionDataAxxios = async (
-  token,
-  nombreEmpleado,
-  apellidoEmpleado,
-  tipoPermiso
-) => {
+export const GetAllPermissionTypeByIdDataAxxios = async (token, id) => {
   const { VITE_API_URL } = getEnvVariables();
 
-  const endpoint = `${VITE_API_URL}/Permissions/RequestPermission`;
+  const endpoint = `${VITE_API_URL}/Permissions/GetPermissionTypeById?id=${id}`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
-  let formData = new FormData();
-  formData.append("nombreEmpleado", nombreEmpleado);
-  formData.append("apellidoEmpleado", apellidoEmpleado);
-  formData.append("tipoPermiso", tipoPermiso);
 
   return await MAxios()
-    .post(endpoint, formData)
+    .get(endpoint)
     .then((res) => res.data)
     .catch(function (error) {
       if (error.response) {
@@ -323,12 +287,97 @@ export const RequestPermissionDataAxxios = async (
     });
 };
 
+
+export const RequestPermissionData = async ( inputData) => {
+  try {
+    const response = await RequestPermissionDataAxxios(null,inputData);
+
+    return response;
+  } catch (error) {
+    console.log("error_calling Maxios", error);
+    return { ok: false, code: "500", errorMessage: error.message }; // error de llamado a api
+  }
+};
+
+export const RequestPermissionDataAxxios = async (token,inputData) => {
+  const { VITE_API_URL } = getEnvVariables();
+
+  const endpoint = `${VITE_API_URL}/Permissions/RequestPermission`;
+
+  // const tokenHeader = token ? InjectTokenHeader(token) : {};
+  //console.log("inputData Maxios", inputData);
+  return await MAxios()
+    .post(endpoint, inputData)
+    .then((res) => res.data)
+    .catch(function (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.log("Api_error", error.response.data);
+        console.log("Api_error", error.response.status);
+        console.log("Api_error", error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log("Api_error", error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Api Error Axios", error.message);
+      }
+      console.log(error.config);
+    });
+};
+
+
+export const CreateNewPermissionData = async (inputData) => {
+  try {    
+    const response = await CreateNewPermissionDataAxxios(null, inputData);
+    return response;
+  } catch (error) {
+    console.log("error_calling Maxios", error);
+    return { ok: false, code: "500", errorMessage: error.message }; // error de llamado a api
+  }
+};
+
+export const CreateNewPermissionDataAxxios = async (token, inputData) => {
+  const { VITE_API_URL } = getEnvVariables();
+
+  const endpoint = `${VITE_API_URL}/Permissions/InsertNewPermission`;
+
+  // const tokenHeader = token ? InjectTokenHeader(token) : {};
+
+  return await MAxios()
+    .post(endpoint, inputData)
+    .then((res) => res.data)
+    .catch(function (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.log("Api_error", error.response.data);
+        console.log("Api_error", error.response.status);
+        console.log("Api_error", error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log("Api_error modify", error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Api Error Axios modify", error.message);
+      }
+      console.log(error.config);
+    });
+};
+
 const ApiAccessData = {
   GetPermissionData,
   GetPermissionByIdData,
   ModifyPermissionData,
   GetAllPermissionTypesData,
+  GetAllPermissionTypeByIdData,
   RequestPermissionData,
+  CreateNewPermissionData
 };
 
 export default ApiAccessData;

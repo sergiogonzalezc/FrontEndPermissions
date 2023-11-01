@@ -22,6 +22,7 @@
     "@mui/x-date-pickers": "^6.17.0",
     "axios": "^1.6.0",
     "date-fns": "^2.30.0",
+    "dayjs": "^1.11.10",
     "formik": "^2.4.5",
     "moment": "^2.29.4",
     "react": "18.2.0",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import parse from "date-fns/parse";
@@ -6,20 +6,72 @@ import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Link } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import {
-  RequestPermissionData
-} from "../api/permissionApi";
+import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
+
+import { RequestPermissionData } from "../api/permissionApi";
+import AnimatedModal from "../Components/AnimatedModal";
+import { styled } from "@mui/material/styles";
+import Paper from "@mui/material/Paper";
 
 const RequestPermission = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [updatedOk, setUpdatedOk] = useState(false);
+
+  const initialDataPermision = [];
+
+  initialDataPermision.push({
+    id: 1,
+    descripcion: "User",
+  });
+
+  const [permissionType, setPermissionType] = useState();
+  const [permissionTypeList, setPermissionTypeList] = useState([]);
+
+  const [isOpenOkModal, setIsOpenOkModal] = useState(false);
+  const handleOpenOkModal = () => setIsOpenOkModal(true);
+  const handleCloseOkModal = () => setIsOpenOkModal(false);
+
+  const [isOpenErrorModal, setIsOpenErrorModal] = useState(false);
+  const handleOpenErrorModal = () => setIsOpenErrorModal(true);
+  const handleCloseErrorModal = () => setIsOpenErrorModal(false);
 
   const onSubmit = async (
     { nombreEmpleado, apellidoEmpleado },
     { setSubmitting, setErrors, resetForm }
   ) => {
-    try {
+    console.log("inicio validation...", nombreEmpleado, apellidoEmpleado);
 
-      //await register({ email, password });
-      console.log("user registered");
+    try {
+      setIsLoading(true);
+
+      let inputData = {
+        nombreEmpleado: nombreEmpleado,
+        apellidoEmpleado: apellidoEmpleado,
+      };
+
+      RequestPermissionData(inputData).then((response) => {
+        console.log("request result", response);
+
+        if (response.success) {
+          // permision OK
+          setIsOpenErrorModal(false);
+          setIsLoading(false);
+
+          resetForm();
+
+          handleOpenOkModal(); // show ok
+        } else {
+          if (response) {
+            // Permission not ok or not found
+            setIsLoading(false);
+            handleOpenErrorModal(); // show error
+          }
+        }
+      });
+
+      setIsLoading(false);
+
       resetForm();
     } catch (error) {
       console.log(error.code);
@@ -32,108 +84,139 @@ const RequestPermission = () => {
     }
   };
 
+
+
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
+  
+  const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+  }));
+
   const validationSchema = Yup.object().shape({
     nombreEmpleado: Yup.string().trim().min(1).required(),
     apellidoEmpleado: Yup.string().trim().min(1).required(),
-    tipoPermiso: Yup.string().trim().min(1).required(),
-    fechaPermiso: Yup.date().transform(function (value, originalValue) {
-      if (this.isType(value)) {
-        return value;
-      }
-      const result = parse(originalValue, "dd-MM-yyyy", new Date());
-      return result;
-    })
-    .typeError("Please enter a valid date")
-    .required()
-    .min("1969-11-13", "Invalid date. Please change a higher date")
   });
-
+    
   return (
-    <Box sx={{ mt: 8, maxWidth: 400, mx: "auto", textAlign: "center" }}>
-      <Avatar sx={{ mx: "auto", bgcolor: "#444" }}>
-        <LockOutlinedIcon />
-      </Avatar>
+    <>
+      <AnimatedModal
+        title={"Permission exists!"}
+        description={"The permision was found!"}
+        isOpen={isOpenOkModal}
+        handleClose={handleCloseOkModal}
+        success={true}
+      ></AnimatedModal>
+      <AnimatedModal
+        title={"Permission does not exists or was not found"}
+        description={"Permission does not exists or was not found"}
+        isOpen={isOpenErrorModal}
+        handleClose={handleCloseErrorModal}
+        success={false}
+      ></AnimatedModal>
 
-      <Typography
-        component="h1"
-        variant="h5"
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        // onClick={handleClose}
       >
-        Request Permission
-      </Typography>
+        <CircularProgress color="inherit" />
+      </Backdrop>
 
-      <Formik
-        initialValues={{ nombreEmpleado: "", apellidoEmpleado: "" }}
-        onSubmit={onSubmit}
-        validationSchema={validationSchema}
-      >
-        {({
-          handleSubmit,
-          handleChange,
-          values,
-          isSubmitting,
-          errors,
-          touched,
-          handleBlur,
-        }) => (
-          <Box
-            onSubmit={handleSubmit}
-            component="form"
-            sx={{ mt: 1 }}
-          >
-            <TextField
-              type="text"
-              label="Nombre/Name"
-              value={values.nombreEmpleado}
-              onChange={handleChange}
-              name="nombreEmpleado"
-              fullWidth
-              sx={{ mb: 3 }}
-              id="nombreEmpleado"
-              placeholder="John"
-              onBlur={handleBlur}
-              error={errors.nombreEmpleado && touched.nombreEmpleado}
-              helperText={errors.nombreEmpleado && touched.nombreEmpleado && errors.nombreEmpleado}
-            />
+      <Box sx={{ mt: 8, maxWidth: 400, mx: "auto", textAlign: "center" }}>
+        <Avatar sx={{ mx: "auto", bgcolor: "#444" }}>
+          <LockOutlinedIcon />
+        </Avatar>
 
-        <TextField
-              type="text"
-              label="Apellido/Last name"
-              value={values.apellidoEmpleado}
-              onChange={handleChange}
-              name="apellidoEmpleado"
-              fullWidth
-              sx={{ mb: 3 }}
-              id="apellidoEmpleado"
-              placeholder="Snow"
-              onBlur={handleBlur}
+        <Typography component="h1" variant="h5">
+          Request Permission
+        </Typography>
 
-              error={errors.apellidoEmpleado && touched.apellidoEmpleado}
-              helperText={errors.apellidoEmpleado && touched.apellidoEmpleado && errors.apellidoEmpleado}
-            />
+        <Formik
+          initialValues={{ nombreEmpleado: "", apellidoEmpleado: "" }}
+          onSubmit={onSubmit}
+          validationSchema={validationSchema}
+        >
+          {({
+            handleSubmit,
+            handleChange,
+            values,
+            isSubmitting,
+            errors,
+            touched,
+            handleBlur,
+          }) => (
+            <Box onSubmit={handleSubmit} component="form" sx={{ mt: 1 }}>
+              <TextField
+                type="text"
+                label="Nombre/Name"
+                value={values.nombreEmpleado}
+                onChange={handleChange}
+                name="nombreEmpleado"
+                fullWidth
+                sx={{ mb: 3 }}
+                id="nombreEmpleado"
+                placeholder="John"
+                onBlur={handleBlur}
+                error={errors.nombreEmpleado && touched.nombreEmpleado}
+                helperText={
+                  errors.nombreEmpleado &&
+                  touched.nombreEmpleado &&
+                  errors.nombreEmpleado
+                }
+              />
 
+              <TextField
+                type="text"
+                label="Apellido/Last name"
+                value={values.apellidoEmpleado}
+                onChange={handleChange}
+                name="apellidoEmpleado"
+                fullWidth
+                sx={{ mb: 3 }}
+                id="apellidoEmpleado"
+                placeholder="Snow"
+                onBlur={handleBlur}
+                error={errors.apellidoEmpleado && touched.apellidoEmpleado}
+                helperText={
+                  errors.apellidoEmpleado &&
+                  touched.apellidoEmpleado &&
+                  errors.apellidoEmpleado
+                }
+              />
 
-            <LoadingButton
-              type="submit"
-              disabled={isSubmitting}
-              loading={isSubmitting}
-              variant="contained"
-              fullWidth
-              sx={{ mb: 3 }}
-            >
-              Request Permission
-            </LoadingButton>
+              <LoadingButton
+                type="submit"
+                disabled={isSubmitting}
+                loading={isSubmitting}
+                variant="contained"
+                fullWidth
+                sx={{ mb: 3 }}
+              >
+                Request Permission
+              </LoadingButton>
 
-            <Button
-              component={Link}
-              to="/"
-              fullWidth              
-            >
-              Volver
-            </Button>
-          </Box>
-        )}
-      </Formik>
-    </Box>
+              <Button component={Link} to="/" fullWidth>
+                Back to List 
+              </Button>
+            </Box>
+          )}
+        </Formik>
+      </Box>
+    </>
   );
 };
 

@@ -1,32 +1,43 @@
+import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import StoreIcon from '@mui/icons-material/Store';
+// import IconButton from '@mui/material/IconButton';
+// import Typography from '@mui/material/Typography';
+// import Menu from '@mui/material/Menu';
+// import MenuIcon from '@mui/icons-material/Menu';
+import Container from '@mui/material/Container';
+// import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+// import Tooltip from '@mui/material/Tooltip';
+// import MenuItem from '@mui/material/MenuItem';
+// import AdbIcon from '@mui/icons-material/Adb';
 
-export const Navbar = () => {
-  
+const pages = ['Permission List Chagenge N5'];
+//const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+
+const NavBar = () => {
+ 
   return (
-
     <AppBar position="static">
-    <Toolbar>
-      <StoreIcon></StoreIcon>
-      <Typography
-          variant="h5"
-          noWrap          
-          component="a"          
-          sx={{
-            mr: 2,
-            fontWeight: 200,
-            fontFamily:'roboto',
-            color:'white',
-            letterSpacing: '.2rem',
-            textDecoration: 'none',
-          }}
-        >
-          Permission Administration v1.0
-        </Typography>
-    </Toolbar>
-</AppBar>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            {pages.map((page) => (
+              <Button disabled
+                key={page}
+                //onClick={handleCloseNavMenu}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                {page}
+              </Button>
+            ))}
+          </Box>          
 
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
-};
+}
+export default NavBar

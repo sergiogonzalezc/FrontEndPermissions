@@ -4,11 +4,14 @@ import {
   GetPermissionByIdData,
   ModifyPermissionData,
   GetAllPermissionTypesData,
+  GetAllPermissionTypeByIdData,
 } from "../api/permissionApi";
 
 import * as Yup from "yup";
+import dayjs from "dayjs";
+import "dayjs/locale/es-mx";
 import parse from "date-fns/parse";
-
+import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
 import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
@@ -16,42 +19,56 @@ import { LoadingButton } from "@mui/lab";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Modal from "@mui/material/Modal";
 import Autocomplete from "@mui/material/Autocomplete";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import AnimatedModal from "../Components/AnimatedModal";
 
 const ModifyPermission = ({ idToModify }) => {
-  // const [idToModify, setIdToModify] = useState();
-  const [showModalError, setShowModalError] = useState(false);
-  const [propsModalError, setPropsModalError] = useState({
-    title: undefined,
-    text: undefined,
-  });
+  const navigate = useNavigate();
 
   const [permissionValues, setPermissionValues] = useState({
     id: 0,
-    nombrePostulante: "",
-    apellidoPostulante: "",
-    TipoPermiso: 0,
-    fechaPermiso: "",
+    nombreEmpleado: "",
+    apellidoEmpleado: "",
+    tipoPermiso: 1,
+    fechaPermiso: Date.now(),
   });
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [openConfirmation, setOpenConfirmation] = useState(false);
-  const [handleCloseConfirmation, setHandleCloseConfirmation] = useState(false);
-  const [openErrorModal, setOpenErrorModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [updatedOk, setUpdatedOk] = useState(false);
+
+  const initialDataPermision = [];
+
+  initialDataPermision.push({
+    id: 1,
+    descripcion: "User",
+  });
+
   const [permissionType, setPermissionType] = useState();
   const [permissionTypeList, setPermissionTypeList] = useState([]);
-  // const ModifyIdPrincipal = async () => {
-  //   const search = useLocation().search;
-  //   const id = new URLSearchParams(search).get("id");
 
-  //   if (id) {
-  //     console.log("read id querystring", id);
-  //     setIdToModify(id);
-  //   }
-  // };
+  const [isOpenOkModal, setIsOpenOkModal] = useState(false);
+  const handleOpenOkModal = () => setIsOpenOkModal(true);
+  const handleCloseOkModal = () => {
+    //setOpenOkModal(false);
+    setIsOpenOkModal(false);
 
-  useEffect(() => {
-    getDataPermission();
-  }, [idToModify]);
+    // PENDING CHANGE TO REDUCER REDUX TOOLKIT
+    window.location.href = "/";
+  };
+
+  const [isOpenErrorModal, setIsOpenErrorModal] = useState(false);
+  const handleOpenErrorModal = () => setIsOpenErrorModal(true);
+  const handleCloseErrorModal = () => setIsOpenErrorModal(false);
+
+  useEffect(
+    () => {
+      getDataPermission();
+    },
+    [idToModify],
+    [updatedOk]
+  );
 
   useEffect(() => {
     getAllPermissionTypes();
@@ -61,27 +78,25 @@ const ModifyPermission = ({ idToModify }) => {
     setIsLoading(true);
 
     GetAllPermissionTypesData().then((response) => {
-      console.log("list types", response);
+      //console.log("list types", response);
 
       if (response?.ok && response.ok === false) {
-        setPropsModalError({
-          title: "Error loading API",
-          text: "Please try again.",
-        });
+        // setPropsModalError({
+        //   title: "Error loading API",
+        //   text: "Please try again.",
+        // });
 
         setIsLoading(false);
-        setOpenErrorModal(true); // show error
-        setOpenConfirmation(false);
+        handleOpenErrorModal(); // show error
       } else {
         if (response) {
-          // if delete is OK
-          console.log("list types OK");
-          setOpenConfirmation(true); // show modal Ok
+          
+          //console.log("list types OK", response);
 
           setPermissionTypeList(response);
         }
 
-        setOpenErrorModal(false);
+        //setOpenErrorModal(false);
         setIsLoading(false);
       }
     });
@@ -90,23 +105,23 @@ const ModifyPermission = ({ idToModify }) => {
   const getDataPermission = async () => {
     if (idToModify && idToModify !== "undefined" && idToModify !== "") {
       setIsLoading(true);
+
       GetPermissionByIdData(idToModify).then((response) => {
-        console.log("respuesta api get data id", idToModify, response);
+        //console.log("respuesta api get data id", idToModify, response);
 
         if (response?.ok && response.ok === false) {
-          setPropsModalError({
-            title: "Error loading API",
-            text: "Please try again.",
-          });
+          // setPropsModalError({
+          //   title: "Error loading API",
+          //   text: "Please try again.",
+          // });
 
           setIsLoading(false);
-          setOpenErrorModal(true); // show error
-          setOpenConfirmation(false);
+          handleOpenErrorModal(); // show error
+          //setOpenOkModal(false);
         } else {
           if (response) {
-            // if delete is OK
-            console.log("modify read Ok", response);
-            setOpenConfirmation(true); // show modal Ok
+            // data id read ok
+            //console.log("data id read ok", response);
 
             setPermissionValues({
               id: response.id,
@@ -116,9 +131,31 @@ const ModifyPermission = ({ idToModify }) => {
               tipoPermisoDesc: response.tipoPermisoDesc,
               fechaPermiso: response.fechaPermiso,
             });
+
+            GetAllPermissionTypeByIdData(response.tipoPermisoCode).then(
+              (responseType) => {
+                if (responseType?.ok && responseType.ok === false) {
+                  // setPropsModalError({
+                  //   title: "Error loading API",
+                  //   text: "Please try again.",
+                  // });
+
+                  setIsLoading(false);
+                  handleOpenErrorModal(); // show error
+                  //setOpenOkModal(false);
+                } else {
+                  if (responseType) {
+                    // data type was readed ok
+                    console.log("se setea Id", responseType);
+
+                    setPermissionType(responseType);                    
+                  }
+                }
+              }
+            );
           }
 
-          setOpenErrorModal(false);
+          //setOpenErrorModal(false);
           setIsLoading(false);
         }
       });
@@ -128,56 +165,55 @@ const ModifyPermission = ({ idToModify }) => {
   };
 
   const onSubmit = async (
-    { id, nombreEmpleado, apellidoEmpleado, tipoPermiso, fechaPermiso },
+    { id, nombreEmpleado, apellidoEmpleado, tipoPermiso , fechaPermiso},
     { setSubmitting, setErrors, resetForm }
   ) => {
-    try {
-      console.log(
-        "modificado datos",
-        id,
-        nombreEmpleado,
-        apellidoEmpleado,
-        tipoPermiso,
-        fechaPermiso
-      );
+    console.log("inicio save...", id, tipoPermiso);
 
+    try {
       setIsLoading(true);
-      ModifyPermissionData(
-        id,
-        nombreEmpleado,
-        apellidoEmpleado,
-        tipoPermiso,
-        fechaPermiso
-      ).then((response) => {
-        console.log("respuesta api get data id", idToModify, response);
+      let inputData = {
+        id: id,
+        nombreEmpleado: nombreEmpleado,
+        apellidoEmpleado: apellidoEmpleado,
+        tipoPermiso: tipoPermiso,
+        fechaPermiso: fechaPermiso,
+      };
+
+      ModifyPermissionData(inputData).then((response) => {
+        //console.log("respuesta api get data id", idToModify, response);
 
         if (response?.ok && response.ok === false) {
-          setPropsModalError({
-            title: "Error loading API",
-            text: "Please try again.",
-          });
+          // setPropsModalError({
+          //   title: "Error loading API",
+          //   text: "Please try again.",
+          // });
 
           setIsLoading(false);
-          setOpenErrorModal(true); // show error
-          setOpenConfirmation(false);
+
+          handleOpenErrorModal(); // show error
+          //setOpenOkModal(false);
         } else {
           if (response) {
-            // if delete is OK
-            console.log("modify read Ok", response);
-            setOpenConfirmation(true); // show modal Ok
+            //console.log("modify read Ok", response);
 
+            //setOpenErrorModal(false);
+            setIsLoading(false);
+
+            // clean values
             setPermissionValues({
-              id: response.id,
-              nombreEmpleado: response.nombreEmpleado,
-              apellidoEmpleado: response.apellidoEmpleado,
-              tipoPermisoCode: response.tipoPermisoCode,
-              tipoPermisoDesc: response.tipoPermisoDesc,
-              fechaPermiso: response.fechaPermiso,
+              id: 0,
+              nombreEmpleado: "",
+              apellidoEmpleado: "",
+              TipoPermiso: 1,
+              fechaPermiso: Date.now(),
             });
-          }
 
-          setOpenErrorModal(false);
-          setIsLoading(false);
+            resetForm();
+
+            handleOpenOkModal();
+            // setOpenConfirmation(true); // show modal Ok
+          }
         }
       });
 
@@ -196,73 +232,46 @@ const ModifyPermission = ({ idToModify }) => {
   };
 
   const validationSchema = Yup.object().shape({
-    nombreEmpleado: Yup.string().trim().min(1).required(),
-    apellidoEmpleado: Yup.string().trim().min(1).required(),
-    tipoPermisoCode: Yup.string().trim().min(1).required(),
-    fechaPermiso: Yup.date()
-      .transform(function (value, originalValue) {
-        if (this.isType(value)) {
-          return value;
-        }
-        const result = parse(originalValue, "dd-MM-yyyy", new Date());
-        return result;
-      })
-      .typeError("Please enter a valid date")
-      .required()
-      .min("1969-11-13", "Invalid date. Please change a higher date"),
+    nombreEmpleado: Yup.string().trim().min(1).max(49).required(),
+    apellidoEmpleado: Yup.string().trim().min(1).max(49).required(),
+    //tipoPermiso: Yup.string().trim().required(),
+    //fechaPermiso: Yup.date().required()
+    // .transform(function (value, originalValue) {
+    //   if (this.isType(value)) {
+    //     return value;
+    //   }
+    //   const result = parse(originalValue, "DD/MM/YYYY", new Date());
+    //   return result;
+    // })
+    // .typeError("Please enter a valid date")
+    // .min("1969-11-13", "Invalid date. Please change a higher date"),
   });
-
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
-
-  const setTipo = async (type) => {
-    setPermissionType(type);
-    console.log("seteado tipo: ", type);
-  };
-
-  const defProps = {
-    options: permissionTypeList.map((option) => ({
-      id: option.id,
-      name: option.descripcion,
-    })),
-    getOptionLabel: (options) => options.id + "-" + options.name,
-  };
 
   const initialValues = {
     id: 0,
-    nombreEmpleado: "sssss",
+    nombreEmpleado: "",
     apellidoEmpleado: "",
-    tipoPermisoCode: 1,
+    tipoPermiso: 1,
     // tipoPermisoDesc: "",
-    fechaPermiso: "",
+    fechaPermiso: Date.now(),
   };
 
   return (
     <>
-      <Modal
-        open={openErrorModal}
-        // onClose={handleCloseConfirmation}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Error
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Error
-          </Typography>
-        </Box>
-      </Modal>
+      <AnimatedModal
+        title={"Permission modified successfully!"}
+        description={"The permision was found!"}
+        isOpen={isOpenOkModal}
+        handleClose={handleCloseOkModal}
+        success={true}
+      ></AnimatedModal>
+      <AnimatedModal
+        title={"The permission could not be modified"}
+        description={"The permission could not be modified. Please check de data or try again later"}
+        isOpen={isOpenErrorModal}
+        handleClose={handleCloseErrorModal}
+        success={false}
+      ></AnimatedModal>
 
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
@@ -297,6 +306,17 @@ const ModifyPermission = ({ idToModify }) => {
             handleBlur,
           }) => (
             <Box onSubmit={handleSubmit} component="form" sx={4}>
+              <TextField
+                type="text"
+                label="Id"
+                value={values.id}
+                variant="outlined"
+                name="id"
+                fullWidth
+                sx={{ mb: 3 }}
+                inputProps={{ readOnly: true }}
+              />
+
               <TextField
                 type="text"
                 label="Nombre/Name"
@@ -339,25 +359,22 @@ const ModifyPermission = ({ idToModify }) => {
                 isOptionEqualToValue={(option, value) =>
                   option.valueOf === value.valueOf
                 }
-                {...defProps}
-                value={permissionType || null}
-                onChange={(event, value) => setTipo(value)}
-                // inputValue={permissionType}
-                onInputChange={(event, newInputValue) => {
-                  setTipo(newInputValue);
+                onChange={(event, value) => {
+                  console.log("setting type: ", value);
+                  const { id } = value;
+                  values.tipoPermiso = id;
+                  setPermissionType(value);
                 }}
+                value={permissionType || null}
+                options={permissionTypeList}
+                getOptionLabel={(options) => `${options.descripcion}`}
                 disablePortal
                 id="tipoPermiso"
-                // options={  permissionTypeList.map((option) => ({
-                //   id: option.id,
-                //   name: option.descripcion,
-                // }))}
                 sx={{ mb: 3 }}
                 fullWidth
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    id="id"
                     label="Permission Type"
                     variant="standard"
                   />
@@ -370,26 +387,22 @@ const ModifyPermission = ({ idToModify }) => {
                 }
               />
 
-              {/* <AutoComplete></AutoComplete> */}
-
-              <TextField
-                type="text"
-                label="Fecha Permiso/Permission Date"
-                value={values.fechaPermiso}
-                onChange={handleChange}
-                name="fechaPermiso"
-                fullWidth
-                sx={{ mb: 3 }}
-                id="fechaPermiso"
-                placeholder="John"
-                onBlur={handleBlur}
-                error={errors.fechaPermiso && touched.fechaPermiso}
-                helperText={
-                  errors.fechaPermiso &&
-                  touched.fechaPermiso &&
-                  errors.fechaPermiso
-                }
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es-mx">
+                <DatePicker
+                  label="Fecha Permiso/Permission Date"
+                  value={dayjs(values.fechaPermiso)}
+                  //inputFormat="DD/MM/YYYY"
+                  name="fechaPermiso"
+                  onChange={(value, x) => {
+                    console.log("selected permission Date: ", JSON.stringify(value));                    
+                    // values.fechaPermiso = JSON.stringify(value);                    
+                    values.fechaPermiso = dayjs(value); 
+                  }}
+                  fullWidth
+                  views={['year', 'month', 'day']}                  
+                  sx={{ mb: 3 }}
+                />
+              </LocalizationProvider>
 
               <LoadingButton
                 type="submit"
