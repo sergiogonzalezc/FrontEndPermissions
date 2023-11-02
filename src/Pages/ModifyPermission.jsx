@@ -36,7 +36,12 @@ const ModifyPermission = ({ idToModify }) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [updatedOk, setUpdatedOk] = useState(false);
+
+  const [propsModalError, setPropsModalError] = useState({
+    title: undefined,
+    text: undefined,
+  });
+
 
   const initialDataPermision = [];
 
@@ -47,11 +52,10 @@ const ModifyPermission = ({ idToModify }) => {
 
   const [permissionType, setPermissionType] = useState();
   const [permissionTypeList, setPermissionTypeList] = useState([]);
-
+  const [updatedOk, setUpdatedOk] = useState(false);
   const [isOpenOkModal, setIsOpenOkModal] = useState(false);
   const handleOpenOkModal = () => setIsOpenOkModal(true);
   const handleCloseOkModal = () => {
-    //setOpenOkModal(false);
     setIsOpenOkModal(false);
 
     // PENDING CHANGE TO REDUCER REDUX TOOLKIT
@@ -197,7 +201,6 @@ const ModifyPermission = ({ idToModify }) => {
           if (response) {
             //console.log("modify read Ok", response);
 
-            //setOpenErrorModal(false);
             setIsLoading(false);
 
             // clean values
@@ -212,7 +215,6 @@ const ModifyPermission = ({ idToModify }) => {
             resetForm();
 
             handleOpenOkModal();
-            // setOpenConfirmation(true); // show modal Ok
           }
         }
       });
@@ -260,16 +262,18 @@ const ModifyPermission = ({ idToModify }) => {
     <>
       <AnimatedModal
         title={"Permission modified successfully!"}
-        description={"The permision was found!"}
+        description={"The permision was modified!"}
         isOpen={isOpenOkModal}
         handleClose={handleCloseOkModal}
+        customProps = {propsModalError}
         success={true}
       ></AnimatedModal>
       <AnimatedModal
         title={"The permission could not be modified"}
-        description={"The permission could not be modified. Please check de data or try again later"}
+        description={"The permission could not be modified. Please check de input data or try again later"}
         isOpen={isOpenErrorModal}
         handleClose={handleCloseErrorModal}
+        customProps = {propsModalError}
         success={false}
       ></AnimatedModal>
 

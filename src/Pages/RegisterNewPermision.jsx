@@ -57,6 +57,11 @@ const RegisterNewPermision = () => {
   const handleOpenErrorModal = () => setIsOpenErrorModal(true);
   const handleCloseErrorModal = () => setIsOpenErrorModal(false);
 
+  const [propsModalError, setPropsModalError] = useState({
+    title: undefined,
+    text: undefined,
+  });
+
   useEffect(() => {
     getAllPermissionTypes();
   }, []);
@@ -87,18 +92,6 @@ const RegisterNewPermision = () => {
     });
   };
 
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
-
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
     ...theme.typography.body2,
@@ -123,13 +116,13 @@ const RegisterNewPermision = () => {
       };
 
       CreateNewPermissionData(inputData).then((response) => {
-        //console.log("respuesta api get data id", idToModify, response);
+        console.log("respuesta api", response);
 
-        if (response?.ok && response.ok === false) {
-          // setPropsModalError({
-          //   title: "Error loading API",
-          //   text: "Please try again.",
-          // });
+        if (!response.success) {
+           setPropsModalError({
+             title: "Error",
+             text: response.errorMessage,
+           });
 
           setIsLoading(false);
 
@@ -158,9 +151,7 @@ const RegisterNewPermision = () => {
         }
       });
 
-      setIsLoading(false);
-
-      resetForm();
+      setIsLoading(false);     
     } catch (error) {
       console.log(error.code);
       console.log(error.message);
@@ -204,6 +195,7 @@ const RegisterNewPermision = () => {
         description={"The permision was created!"}
         isOpen={isOpenOkModal}
         handleClose={handleCloseOkModal}
+        customProps = {propsModalError}
         success={true}
       ></AnimatedModal>
       <AnimatedModal
@@ -213,6 +205,7 @@ const RegisterNewPermision = () => {
         }
         isOpen={isOpenErrorModal}
         handleClose={handleCloseErrorModal}
+        customProps = {propsModalError}
         success={false}
       ></AnimatedModal>
 
@@ -357,7 +350,7 @@ const RegisterNewPermision = () => {
                     variant="contained"
                     fullWidth
                   >
-                    Request Permission
+                    Create New Permission
                   </LoadingButton>
                 </Item>
               </Grid>

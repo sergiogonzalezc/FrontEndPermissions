@@ -17,6 +17,7 @@ const AnimatedModal = ({
   description,
   isOpen,
   handleClose,
+  customProps,
   success,
 }) => {
   // const [open, setOpen] = React.useState(false);
@@ -44,13 +45,16 @@ const AnimatedModal = ({
       >
         <DialogTitle>
           {success ? (
-            <CheckCircleIcon></CheckCircleIcon>) : (
+            <CheckCircleIcon></CheckCircleIcon>
+          ) : (
             <ErrorOutlineIcon></ErrorOutlineIcon>
           )}
-          {title}
+          {customProps?.title ? customProps.title : title}
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>{description}</DialogContentText>
+          <DialogContentText>
+            {customProps?.text ? customProps.text : description}
+          </DialogContentText>
           <DialogActions>
             <Button onClick={handleClose} color="primary">
               Close
