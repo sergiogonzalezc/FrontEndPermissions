@@ -1,14 +1,9 @@
-FROM node:lts-bulleye as build
+# Step 1: Build the application
+FROM node:16 AS BUILD_IMAGE
 WORKDIR /app
-copy package*.json ./
-RUN npm ci
+COPY package.json package-lock.json ./
+COPY .npmrc .npmrc
+RUN npm i
+
 COPY . .
-RUN npm run build
-
-### STAGE 2
-FROM nginx:alphine
-ADD ./config/default.conf /etc/nginx/conf.d/default/conf
-COPY --from=build /app/dist var/www/app/
-EXPOSE 80
-CMD ["nginx","-g","daemon off;"]
-
+CMD ["npm","run", "dev"]

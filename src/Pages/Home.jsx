@@ -17,18 +17,6 @@ import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
 
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
-
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
@@ -85,27 +73,19 @@ const Home = () => {
     text: undefined,
   });
 
-  const [dataItemPermission, setDataItemPermission] = useState([
-    {
-      id: 0,
-      nombreEmpleado: "",
-      apellidoEmpleado: "",
-      tipoPermiso: "",
-      fechaPermiso: "01-01-1000",
-    },
-  ]);
 
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const [idToModify, setIdToModify] = useState();
 
   const [open, setOpen] = React.useState(false);
+  const [updatedData, setUpdatedData] = useState(false);
+  const handleUpdateData = () => setUpdatedData(false);
 
   const handleModifyPermission = (dataId) => {
     console.log("click id", dataId);
 
-    setIdToModify(dataId);
-    //navigate(`/modifypermission?id=${dataId}`, { replace: true });
+    setIdToModify(dataId);    
   };
 
 
@@ -113,12 +93,18 @@ const Home = () => {
     CallPermissionData();
   }, []);
 
+  useEffect(() => {
+    CallPermissionData();
+    setUpdatedData(false);
+  }, [updatedData]);
+
+
   const CallPermissionData = () => {
     setIsLoading(true);
 
     try {
       GetPermissionData().then((response) => {
-        console.log("respuesta api", response);
+        //console.log("respuesta api", response);
 
         if (response?.ok && response.ok === false) {
           setPropsModalError({
@@ -135,6 +121,7 @@ const Home = () => {
 
           setOpen(false);
           setIsLoading(false);
+          //setUpdatedData(false);
         }
       });
     } catch {
@@ -216,7 +203,7 @@ const Home = () => {
         {/* Modify section */}
         <Grid item xs={4} mt={4}>
           <Item>
-            {idToModify ? <ModifyPermission idToModify={idToModify} /> : ""}
+            {idToModify ? <ModifyPermission idToModify={idToModify}  setUpdatedData={setUpdatedData} /> : ""}
           </Item>
         </Grid>
       </Grid>

@@ -24,7 +24,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import AnimatedModal from "../Components/AnimatedModal";
 
-const ModifyPermission = ({ idToModify }) => {
+const ModifyPermission = ({ idToModify , setUpdatedData}) => {
   const navigate = useNavigate();
 
   const [permissionValues, setPermissionValues] = useState({
@@ -59,7 +59,7 @@ const ModifyPermission = ({ idToModify }) => {
     setIsOpenOkModal(false);
 
     // PENDING CHANGE TO REDUCER REDUX TOOLKIT
-    window.location.href = "/";
+    //window.location.href = "/";
   };
 
   const [isOpenErrorModal, setIsOpenErrorModal] = useState(false);
@@ -94,13 +94,8 @@ const ModifyPermission = ({ idToModify }) => {
         handleOpenErrorModal(); // show error
       } else {
         if (response) {
-          
-          //console.log("list types OK", response);
-
           setPermissionTypeList(response);
-        }
-
-        //setOpenErrorModal(false);
+        }        
         setIsLoading(false);
       }
     });
@@ -215,6 +210,8 @@ const ModifyPermission = ({ idToModify }) => {
             resetForm();
 
             handleOpenOkModal();
+
+            setUpdatedData(true);
           }
         }
       });

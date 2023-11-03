@@ -6,6 +6,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import RegisterNewPermision from "../Pages/RegisterNewPermision";
 import RequestPermission from "../Pages/RequestPermission";
 import NavBar from "../Ui/NavBar";
+import Footer from "../Components/Footer";
 
 const AppRouter = () => {
   // create a darkTheme function to handle dark theme using createTheme
@@ -31,6 +32,8 @@ const AppRouter = () => {
           {/* default route */}
           <Route path="/" element={<Navigate to="/home"></Navigate>}></Route>
         </Routes>
+
+        <Footer />
       </ThemeProvider>
     </>
   );

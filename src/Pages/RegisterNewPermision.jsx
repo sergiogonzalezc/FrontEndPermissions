@@ -52,11 +52,11 @@ const RegisterNewPermision = () => {
   const handleOpenOkModal = () => setIsOpenOkModal(true);
   const handleCloseOkModal = () => setIsOpenOkModal(false);
   
-
   const [isOpenErrorModal, setIsOpenErrorModal] = useState(false);
   const handleOpenErrorModal = () => setIsOpenErrorModal(true);
   const handleCloseErrorModal = () => setIsOpenErrorModal(false);
 
+  const [showModalError, setShowModalError] = useState(false);
   const [propsModalError, setPropsModalError] = useState({
     title: undefined,
     text: undefined,
@@ -116,7 +116,7 @@ const RegisterNewPermision = () => {
       };
 
       CreateNewPermissionData(inputData).then((response) => {
-        console.log("respuesta api", response);
+        //console.log("respuesta api", response);
 
         if (!response.success) {
            setPropsModalError({
@@ -125,7 +125,7 @@ const RegisterNewPermision = () => {
            });
 
           setIsLoading(false);
-
+          setShowModalError(true);
           handleOpenErrorModal(); // show error
           //setOpenOkModal(false);
         } else {

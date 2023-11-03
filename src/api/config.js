@@ -1,15 +1,15 @@
-import { getEnvVariables } from "../helpers/getEnvVariables";
+import { API_ENDPOINT } from "../helpers/getEnvVariables";
 import axios from "axios";
 
 //** Conf **/
 
-const { VITE_API_URL } = getEnvVariables();
+//const { VITE_API_URL } = getEnvVariables();
 
 //Token
 const sessionToken = "";
 
 //API URL
-const baseURL = `${VITE_API_URL}/`;
+const baseURL = `${API_ENDPOINT}/`;
 //TokenHeaders
 const baseTokenHeaders = {
   Authorization: `Bearer ${sessionToken}`,

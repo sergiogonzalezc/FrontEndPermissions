@@ -13,7 +13,7 @@ import Button from '@mui/material/Button';
 // import MenuItem from '@mui/material/MenuItem';
 // import AdbIcon from '@mui/icons-material/Adb';
 
-const pages = ['Permission List Chagenge N5'];
+const pages = ['Permission List Chagenge N5 -'];
 //const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const NavBar = () => {

@@ -1,5 +1,5 @@
 import { MAxios, MAxiosFormData } from "./config";
-import { getEnvVariables } from "../helpers";
+import { API_ENDPOINT } from "../helpers";
 
 export const GetPermissionData = async () => {
   try {
@@ -37,9 +37,9 @@ export const GetPermissionData = async () => {
 };
 
 export const GetPermissionDataAxxios = async (token) => {
-  const { VITE_API_URL } = getEnvVariables();
+  //const { API_ENDPOINT } = getEnvVariables();
 
-  const endpoint = `${VITE_API_URL}/Permissions/GetPermissions`;
+  const endpoint = `${API_ENDPOINT}/Permissions/GetPermissions`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
   // let formData = new FormData();
@@ -95,9 +95,9 @@ export const GetPermissionByIdData = async (id) => {
 };
 
 export const GetPermissionByIdDataAxxios = async (token, id) => {
-  const { VITE_API_URL } = getEnvVariables();
+  //const { API_ENDPOINT } = getEnvVariables();
 
-  const endpoint = `${VITE_API_URL}/Permissions/GetPermissionById?id=${id}`;
+  const endpoint = `${API_ENDPOINT}/Permissions/GetPermissionById?id=${id}`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
 
@@ -137,9 +137,9 @@ export const ModifyPermissionData = async (inputData) => {
 };
 
 export const ModifyPermissionDataAxxios = async (token, inputData) => {
-  const { VITE_API_URL } = getEnvVariables();
+  //const { API_ENDPOINT } = getEnvVariables();
 
-  const endpoint = `${VITE_API_URL}/Permissions/ModifyPermission`;
+  const endpoint = `${API_ENDPOINT}/Permissions/ModifyPermission`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
   // let formData = new FormData();
@@ -199,9 +199,9 @@ export const GetAllPermissionTypesData = async () => {
 };
 
 export const GetAllPermissionTypesDataAxxios = async (token) => {
-  const { VITE_API_URL } = getEnvVariables();
+  //const { API_ENDPOINT } = getEnvVariables();
 
-  const endpoint = `${VITE_API_URL}/Permissions/GetPermissionTypes`;
+  const endpoint = `${API_ENDPOINT}/Permissions/GetPermissionTypes`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
   //  let formData = new FormData();
@@ -258,9 +258,9 @@ export const GetAllPermissionTypeByIdData = async (id) => {
 };
 
 export const GetAllPermissionTypeByIdDataAxxios = async (token, id) => {
-  const { VITE_API_URL } = getEnvVariables();
+  //const { API_ENDPOINT } = getEnvVariables();
 
-  const endpoint = `${VITE_API_URL}/Permissions/GetPermissionTypeById?id=${id}`;
+  const endpoint = `${API_ENDPOINT}/Permissions/GetPermissionTypeById?id=${id}`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
 
@@ -300,9 +300,9 @@ export const RequestPermissionData = async ( inputData) => {
 };
 
 export const RequestPermissionDataAxxios = async (token,inputData) => {
-  const { VITE_API_URL } = getEnvVariables();
+  //const { API_ENDPOINT } = getEnvVariables();
 
-  const endpoint = `${VITE_API_URL}/Permissions/RequestPermission`;
+  const endpoint = `${API_ENDPOINT}/Permissions/RequestPermission`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
   //console.log("inputData Maxios", inputData);
@@ -341,9 +341,9 @@ export const CreateNewPermissionData = async (inputData) => {
 };
 
 export const CreateNewPermissionDataAxxios = async (token, inputData) => {
-  const { VITE_API_URL } = getEnvVariables();
-
-  const endpoint = `${VITE_API_URL}/Permissions/InsertNewPermission`;
+  //const { API_ENDPOINT } = getEnvVariables();
+  
+  const endpoint = `${API_ENDPOINT}/Permissions/InsertNewPermission`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
 
