@@ -288,9 +288,9 @@ export const GetAllPermissionTypeByIdDataAxxios = async (token, id) => {
 };
 
 
-export const RequestPermissionData = async ( inputData) => {
+export const ValidatePermissionData = async ( inputData) => {
   try {
-    const response = await RequestPermissionDataAxxios(null,inputData);
+    const response = await ValidatePermissionDataAxxios(null,inputData);
 
     return response;
   } catch (error) {
@@ -299,10 +299,10 @@ export const RequestPermissionData = async ( inputData) => {
   }
 };
 
-export const RequestPermissionDataAxxios = async (token,inputData) => {
+export const ValidatePermissionDataAxxios = async (token,inputData) => {
   //const { API_ENDPOINT } = getEnvVariables();
 
-  const endpoint = `${API_ENDPOINT}/Permissions/RequestPermission`;
+  const endpoint = `${API_ENDPOINT}/Permissions/ValidatePermission`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
   //console.log("inputData Maxios", inputData);
@@ -376,7 +376,8 @@ const ApiAccessData = {
   ModifyPermissionData,
   GetAllPermissionTypesData,
   GetAllPermissionTypeByIdData,
-  RequestPermissionData,
+  //RequestPermissionData,
+  ValidatePermissionData,
   CreateNewPermissionData
 };
 

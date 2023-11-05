@@ -157,8 +157,8 @@ const Home = () => {
         </Grid>
         <Grid item xs={6} md={6} mt={4}>
           <Item>
-            <Button component={Link} to="/RegisterNewPermision" fullWidth>
-              Register a new permission
+            <Button component={Link} to="/ValidatePermission" fullWidth>
+              Validate permission
             </Button>
           </Item>
         </Grid>
