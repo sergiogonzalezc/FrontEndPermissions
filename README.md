@@ -22,14 +22,16 @@ Principales dependencias:
 - [1] Inicar "Docker Desktop for Windows" v4.25.
 - [2] Debe estar ubicado en el path donde está el archivo .Dockerfile, y ejecutar:
 
-docker image build -t frontendchallenge:1.0 .
+**docker image build -t frontendchallenge:1.0 .**
 
-- [3] Obtener el **"GUID"** de "Docker for Desktop Windows".
+- [3] Obtener el **"GUID"** de lista de imágenes desde "Docker for Desktop Windows".
+  
 - [4] Crear cotenedor a partir de la imagen anteriormente creada:
 
-**docker container create --name frontendpermissions-container -p 8082:8081 GUID**
+  **docker container create --name frontendpermissions-container -p 8082:8081 GUID**
+
 - [5] Iniciar el contenedor: 
-**docker container start frontendpermissions-container**
+  **docker container start frontendpermissions-container**
 
 - [6] El contenedor se debe iniciar en el puerto 8082, por ejemplo: Abrir al browser en http://localhost:8082/ debería ver el sitio web.
 
@@ -63,12 +65,14 @@ Main dependencies:
 
 docker image build -t frontendchallenge:1.0 .
 
-- [3] Get the "GUID" of "Docker for Desktop Windows".
-- [4] Create a container from the previously created image:
+- [3] Get the "GUID" from "Docker for Desktop Windows" image list.
+  
+- [4] Create a container from the image previously created:
 
-docker container create --name frontendpermissions-container -p 8082:8081 GUID
+  **docker container create --name frontendpermissions-container -p 8082:8081 GUID**
+  
 - [5] Start the container:
-docker container start frontendpermissions-container
+  **docker container start frontendpermissions-container**
 
 - [6] The container should be started on port 8082, for example: Open the browser at http://localhost:8082/ you should see the website.
 
