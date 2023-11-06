@@ -330,20 +330,36 @@ export const ValidatePermissionDataAxxios = async (token,inputData) => {
 };
 
 
-export const CreateNewPermissionData = async (inputData) => {
-  try {    
-    const response = await CreateNewPermissionDataAxxios(null, inputData);
-    return response;
+export const RequestNewPermissionData = async (inputData) => {
+  //console.log("calling RequestNewPermissionData", inputData);
+
+  try {       
+    const response = await RequestPermissionDataAxxios(null, inputData);
+    
+    if (response.success) {
+      // correct Request Permission
+
+      return response.data;
+    } else {
+      return {
+        ok: false,
+        errorMessage: response.message,
+        code: response.code,
+        status: response.status,
+      };
+    }
+
   } catch (error) {
     console.log("error_calling Maxios", error);
+    console.log("inputData2 Request", inputData);
     return { ok: false, code: "500", errorMessage: error.message }; // error de llamado a api
   }
 };
 
-export const CreateNewPermissionDataAxxios = async (token, inputData) => {
+export const RequestPermissionDataAxxios = async (token, inputData) => {
   //const { API_ENDPOINT } = getEnvVariables();
-  
-  const endpoint = `${API_ENDPOINT}/Permissions/InsertNewPermission`;
+   
+  const endpoint = `${API_ENDPOINT}/Permissions/RequestPermission`;
 
   // const tokenHeader = token ? InjectTokenHeader(token) : {};
 
@@ -375,10 +391,9 @@ const ApiAccessData = {
   GetPermissionByIdData,
   ModifyPermissionData,
   GetAllPermissionTypesData,
-  GetAllPermissionTypeByIdData,
-  //RequestPermissionData,
+  GetAllPermissionTypeByIdData,  
   ValidatePermissionData,
-  CreateNewPermissionData
+  RequestNewPermissionData
 };
 
 export default ApiAccessData;

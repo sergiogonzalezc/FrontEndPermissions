@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Formik } from "formik";
 import {
-  CreateNewPermissionData,
+  RequestNewPermissionData,
   GetAllPermissionTypesData,
+  GetAllPermissionTypeByIdData,
 } from "../api/permissionApi";
 
 import * as Yup from "yup";
@@ -13,19 +14,18 @@ import Grid from "@mui/material/Grid";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
 import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
+import LoadingButton from '@mui/lab/LoadingButton';
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Autocomplete from "@mui/material/Autocomplete";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import AnimatedModal from "../Components/AnimatedModal";
 import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import { Link } from "react-router-dom";
 
 const RequestPermission = () => {
-  
   const [permissionValues, setPermissionValues] = useState({
     nombreEmpleado: "",
     apellidoEmpleado: "",
@@ -49,7 +49,7 @@ const RequestPermission = () => {
   const [isOpenOkModal, setIsOpenOkModal] = useState(false);
   const handleOpenOkModal = () => setIsOpenOkModal(true);
   const handleCloseOkModal = () => setIsOpenOkModal(false);
-  
+
   const [isOpenErrorModal, setIsOpenErrorModal] = useState(false);
   const handleOpenErrorModal = () => setIsOpenErrorModal(true);
   const handleCloseErrorModal = () => setIsOpenErrorModal(false);
@@ -82,6 +82,31 @@ const RequestPermission = () => {
           //console.log("list types OK", response);
 
           setPermissionTypeList(response);
+
+          // Setting the user permission type by default
+          // GetAllPermissionTypeByIdData("2").then(            
+          //   (responseType) => {
+          //     console.log("responseType", responseType);
+
+          //     if (responseType?.ok && responseType.ok === false) {
+          //       // setPropsModalError({
+          //       //   title: "Error loading API",
+          //       //   text: "Please try again.",
+          //       // });
+
+          //       setIsLoading(false);
+          //       handleOpenErrorModal(); // show error
+          //       //setOpenOkModal(false);
+          //     } else {
+          //       if (responseType) {
+          //         // data type was readed ok
+          //         console.log("se setea Id", responseType);
+
+          //         setPermissionType(responseType);                    
+          //       }
+          //     }
+          //   }
+          // );
         }
 
         //setOpenErrorModal(false);
@@ -99,28 +124,34 @@ const RequestPermission = () => {
   }));
 
   const onSubmit = async (
-    { nombreEmpleado, apellidoEmpleado, tipoPermiso },
+    { nombreEmpleado, apellidoEmpleado, tipoPermisoCode },
     { setSubmitting, setErrors, resetForm }
   ) => {
-    //console.log("init creation...", nombreEmpleado, tipoPermiso);
+    console.log("init creation...", nombreEmpleado, tipoPermisoCode);
 
     try {
+      
+      setSubmitting(true);
       setIsLoading(true);
+
+      const { id } = tipoPermisoCode;
+      
       let inputData = {
         nombreEmpleado: nombreEmpleado,
         apellidoEmpleado: apellidoEmpleado,
-        tipoPermiso: tipoPermiso,
+        tipoPermiso: tipoPermisoCode,
         //fechaPermiso: fechaPermiso,
       };
 
-      CreateNewPermissionData(inputData).then((response) => {
+      console.log("calling api", inputData);
+      RequestNewPermissionData(inputData).then((response) => {
         //console.log("respuesta api", response);
 
         if (!response.success) {
-           setPropsModalError({
-             title: "Error",
-             text: response.errorMessage,
-           });
+          setPropsModalError({
+            title: "Error",
+            text: response.errorMessage,
+          });
 
           setIsLoading(false);
           setShowModalError(true);
@@ -137,7 +168,7 @@ const RequestPermission = () => {
             setPermissionValues({
               nombreEmpleado: "",
               apellidoEmpleado: "",
-              TipoPermiso: 1,
+              tipoPermisoCode: "1",
               //fechaPermiso: Date.now(),
             });
 
@@ -149,22 +180,24 @@ const RequestPermission = () => {
         }
       });
 
-      setIsLoading(false);     
+      setIsLoading(false);
+      setIsLoading(false);
     } catch (error) {
-      console.log(error.code);
-      console.log(error.message);
-      if (error.code === "auth/email-already-in-use") {
-        setErrors({ email: "Email already in use" });
+      console.log("Error_generic", error);
+      // console.log(error.message);
+      if (error.code === "Error_generic") {
+        setErrors({ nombreEmpleado: "Error_generic" });
       }
     } finally {
       setSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   const validationSchema = Yup.object().shape({
     nombreEmpleado: Yup.string().trim().min(1).max(49).required(),
     apellidoEmpleado: Yup.string().trim().min(1).max(49).required(),
-    //tipoPermiso: Yup.string().trim().required(),
+    //tipoPermisoCode: Yup.string().trim().required(),
     //fechaPermiso: Yup.date().required()
     // .transform(function (value, originalValue) {
     //   if (this.isType(value)) {
@@ -193,7 +226,7 @@ const RequestPermission = () => {
         description={"The permision was created!"}
         isOpen={isOpenOkModal}
         handleClose={handleCloseOkModal}
-        customProps = {propsModalError}
+        customProps={propsModalError}
         success={true}
       ></AnimatedModal>
       <AnimatedModal
@@ -203,7 +236,7 @@ const RequestPermission = () => {
         }
         isOpen={isOpenErrorModal}
         handleClose={handleCloseErrorModal}
-        customProps = {propsModalError}
+        customProps={propsModalError}
         success={false}
       ></AnimatedModal>
 
@@ -238,7 +271,7 @@ const RequestPermission = () => {
             errors,
             touched,
             handleBlur,
-            setFieldValue
+            setFieldValue,
           }) => (
             <Box onSubmit={handleSubmit} component="form" sx={4}>
               <Grid item xs={12} md={12} mt={4}>
@@ -291,17 +324,21 @@ const RequestPermission = () => {
                       // console.log('do the objects match?', value === values.address.country);
                       // console.log('the objects in question', value, values.address.country);
                       
-                      const { id } = value;
                       //values.tipoPermiso = id;
                       //setPermissionType(value);
-                      setFieldValue("tipoPermiso", value);
+
+                      const { id } = value;
+                      values.tipoPermiso = id;
+                      setPermissionType(value);
+
+                      setFieldValue("tipoPermisoCode", id);
                     }}
                     onBlur={handleBlur} // so formik can see the forms touched state
                     value={permissionType || null}
                     options={permissionTypeList}
                     getOptionLabel={(options) => `${options.descripcion}`}
                     disablePortal
-                    id="tipoPermiso"
+                    id="tipoPermisoCode"
                     sx={{ mb: 3 }}
                     fullWidth
                     renderInput={(params) => (
@@ -346,26 +383,30 @@ const RequestPermission = () => {
               {/* Buttons */}
 
               <Grid container spacing={2}>
-              <Grid item xs={6} md={6} mt={4}>
-                <Item>
-                  <LoadingButton
-                    type="submit"
-                    disabled={isSubmitting}
-                    loading={isSubmitting}
-                    variant="contained"
-                    fullWidth
-                  >
-                    Request Permission
-                  </LoadingButton>
-                </Item>
-              </Grid>
-              <Grid item xs={6} md={6} mt={4}>
-                <Item>
-                  <Button component={Link} to="/" fullWidth>
-                    Back to List
-                  </Button>
-                </Item>
-              </Grid>
+                <Grid item xs={6} md={6} mt={4}>
+                  <Item>
+                  
+                    <LoadingButton
+                      type="submit"
+                      disabled={isLoading}
+                      loading={isLoading}
+                      variant="contained"
+                      color="primary"                                
+                      loadingPosition="start"
+                      fullWidth
+                    >
+                      <span>Request Permission</span>                      
+                    </LoadingButton>
+                  
+                  </Item>
+                </Grid>
+                <Grid item xs={6} md={6} mt={4}>
+                  <Item>
+                    <Button component={Link} to="/" fullWidth>
+                      Back to List
+                    </Button>
+                  </Item>
+                </Grid>
               </Grid>
             </Box>
           )}

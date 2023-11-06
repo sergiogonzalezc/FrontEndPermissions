@@ -24,7 +24,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import AnimatedModal from "../Components/AnimatedModal";
 
-const ModifyPermission = ({ idToModify , setUpdatedData}) => {
+const ModifyPermission = ({ idToModify, idGuiid, setUpdatedData }) => {
   const navigate = useNavigate();
 
   const [permissionValues, setPermissionValues] = useState({
@@ -41,7 +41,6 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
     title: undefined,
     text: undefined,
   });
-
 
   const initialDataPermision = [];
 
@@ -70,8 +69,7 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
     () => {
       getDataPermission();
     },
-    [idToModify],
-    [updatedOk]
+    [idGuiid]
   );
 
   useEffect(() => {
@@ -95,95 +93,109 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
       } else {
         if (response) {
           setPermissionTypeList(response);
-        }        
+        }
         setIsLoading(false);
       }
     });
   };
 
   const getDataPermission = async () => {
-    if (idToModify && idToModify !== "undefined" && idToModify !== "") {
-      setIsLoading(true);
+    try {
+      //console.log("getDataPermission id", idGuiid);
 
-      GetPermissionByIdData(idToModify).then((response) => {
-        //console.log("respuesta api get data id", idToModify, response);
+      if (idToModify && idToModify !== "undefined" && idToModify !== "") {
+        setIsLoading(true);
 
-        if (response?.ok && response.ok === false) {
-          // setPropsModalError({
-          //   title: "Error loading API",
-          //   text: "Please try again.",
-          // });
+        GetPermissionByIdData(idToModify).then((response) => {
+          //console.log("respuesta api get data id", idToModify, response);
 
-          setIsLoading(false);
-          handleOpenErrorModal(); // show error
-          //setOpenOkModal(false);
-        } else {
-          if (response) {
-            // data id read ok
-            //console.log("data id read ok", response);
+          if (response?.ok && response.ok === false) {
+            // setPropsModalError({
+            //   title: "Error loading API",
+            //   text: "Please try again.",
+            // });
 
-            setPermissionValues({
-              id: response.id,
-              nombreEmpleado: response.nombreEmpleado,
-              apellidoEmpleado: response.apellidoEmpleado,
-              tipoPermisoCode: response.tipoPermisoCode,
-              tipoPermisoDesc: response.tipoPermisoDesc,
-              fechaPermiso: response.fechaPermiso,
-            });
+            setIsLoading(false);
+            handleOpenErrorModal(); // show error
+            //setOpenOkModal(false);
+          } else {
+            if (response) {
+              // data id read ok
+              //console.log("data id read ok", response);
 
-            GetAllPermissionTypeByIdData(response.tipoPermisoCode).then(
-              (responseType) => {
-                if (responseType?.ok && responseType.ok === false) {
-                  // setPropsModalError({
-                  //   title: "Error loading API",
-                  //   text: "Please try again.",
-                  // });
+              setPermissionValues({
+                id: response.id,
+                nombreEmpleado: response.nombreEmpleado,
+                apellidoEmpleado: response.apellidoEmpleado,
+                tipoPermisoCode: response.tipoPermisoCode,
+                tipoPermisoDesc: response.tipoPermisoDesc,
+                fechaPermiso: response.fechaPermiso,
+              });
 
-                  setIsLoading(false);
-                  handleOpenErrorModal(); // show error
-                  //setOpenOkModal(false);
-                } else {
-                  if (responseType) {
-                    // data type was readed ok
-                    console.log("se setea Id", responseType);
+              GetAllPermissionTypeByIdData(response.tipoPermisoCode).then(
+                (responseType) => {
+                  if (responseType?.ok && responseType.ok === false) {
+                    // setPropsModalError({
+                    //   title: "Error loading API",
+                    //   text: "Please try again.",
+                    // });
 
-                    setPermissionType(responseType);                    
+                    setIsLoading(false);
+                    handleOpenErrorModal(); // show error
+                    //setOpenOkModal(false);
+                  } else {
+                    if (responseType) {
+                      // data type was readed ok
+                      console.log("se setea Id", responseType);
+
+                      setPermissionType(responseType);
+                    }
                   }
                 }
-              }
-            );
+              );
+            }
+
+            //setOpenErrorModal(false);
+            setIsLoading(false);
           }
+        });
 
-          //setOpenErrorModal(false);
-          setIsLoading(false);
-        }
-      });
-
-      setIsLoading(false);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUpdatedOk(true);
     }
   };
 
   const onSubmit = async (
-    { id, nombreEmpleado, apellidoEmpleado, tipoPermiso , fechaPermiso},
+    { id, nombreEmpleado, apellidoEmpleado, tipoPermisoCode, fechaPermiso },
     { setSubmitting, setErrors, resetForm }
   ) => {
-    console.log("inicio save...", id, tipoPermiso);
+    console.log("inicio save...", id, tipoPermisoCode);
 
     try {
+      // Grabs obj.x as as { otherName }
+      //const { id: idSelectedDropDown } = tipoPermisoCode;
+
       setIsLoading(true);
+
       let inputData = {
         id: id,
         nombreEmpleado: nombreEmpleado,
         apellidoEmpleado: apellidoEmpleado,
-        tipoPermiso: tipoPermiso,
         fechaPermiso: fechaPermiso,
+        tipoPermiso: tipoPermisoCode, // destructure de id of dropdonlist
       };
+
+      //console.log("sending data to modify", idToModify, inputData);
 
       ModifyPermissionData(inputData).then((response) => {
         //console.log("respuesta api get data id", idToModify, response);
 
         if (response?.ok && response.ok === false) {
-          // setPropsModalError({
+          // setPropsMod=alError({
           //   title: "Error loading API",
           //   text: "Please try again.",
           // });
@@ -203,7 +215,7 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
               id: 0,
               nombreEmpleado: "",
               apellidoEmpleado: "",
-              TipoPermiso: 1,
+              tipoPermisoCode: 1,
               fechaPermiso: Date.now(),
             });
 
@@ -216,16 +228,15 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
         }
       });
 
-      setIsLoading(false);
-
       resetForm();
     } catch (error) {
-      console.log(error.code);
-      console.log(error.message);
-      if (error.code === "auth/email-already-in-use") {
-        setErrors({ email: "Email already in use" });
+      console.log(error);
+      //console.log(error.message);
+      if (error.code === "Error_generic") {
+        setErrors({ nombreEmpleado: "Error_generic" });
       }
     } finally {
+      setIsLoading(false);
       setSubmitting(false);
     }
   };
@@ -250,7 +261,7 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
     id: 0,
     nombreEmpleado: "",
     apellidoEmpleado: "",
-    tipoPermiso: 1,
+    tipoPermisoCode: 1,
     // tipoPermisoDesc: "",
     fechaPermiso: Date.now(),
   };
@@ -262,15 +273,17 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
         description={"The permision was modified!"}
         isOpen={isOpenOkModal}
         handleClose={handleCloseOkModal}
-        customProps = {propsModalError}
+        customProps={propsModalError}
         success={true}
       ></AnimatedModal>
       <AnimatedModal
         title={"The permission could not be modified"}
-        description={"The permission could not be modified. Please check de input data or try again later"}
+        description={
+          "The permission could not be modified. Please check de input data or try again later"
+        }
         isOpen={isOpenErrorModal}
         handleClose={handleCloseErrorModal}
-        customProps = {propsModalError}
+        customProps={propsModalError}
         success={false}
       ></AnimatedModal>
 
@@ -305,6 +318,7 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
             errors,
             touched,
             handleBlur,
+            setFieldValue,
           }) => (
             <Box onSubmit={handleSubmit} component="form" sx={4}>
               <TextField
@@ -360,11 +374,26 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
                 isOptionEqualToValue={(option, value) =>
                   option.valueOf === value.valueOf
                 }
+                // onChange={(event, value) => {
+                //   console.log("setting type: ", value);
+                //   const { id } = value;
+                //   values.tipoPermiso = id;
+                //   setPermissionType(value);
+                // }}
                 onChange={(event, value) => {
                   console.log("setting type: ", value);
+                  // console.log('do the types match?', typeof value === typeof values.address.country);
+                  // console.log('do the objects match?', value === values.address.country);
+                  // console.log('the objects in question', value, values.address.country);
+
                   const { id } = value;
                   values.tipoPermiso = id;
                   setPermissionType(value);
+
+                  console.log("se setea Id", value);
+                  //setPermissionType(value);
+
+                  setFieldValue("tipoPermisoCode", id);
                 }}
                 value={permissionType || null}
                 options={permissionTypeList}
@@ -388,27 +417,33 @@ const ModifyPermission = ({ idToModify , setUpdatedData}) => {
                 }
               />
 
-              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es-mx">
+              <LocalizationProvider
+                dateAdapter={AdapterDayjs}
+                adapterLocale="es-mx"
+              >
                 <DatePicker
                   label="Fecha Permiso/Permission Date"
                   value={dayjs(values.fechaPermiso)}
                   //inputFormat="DD/MM/YYYY"
                   name="fechaPermiso"
                   onChange={(value, x) => {
-                    console.log("selected permission Date: ", JSON.stringify(value));                    
-                    // values.fechaPermiso = JSON.stringify(value);                    
-                    values.fechaPermiso = dayjs(value); 
+                    console.log(
+                      "selected permission Date: ",
+                      JSON.stringify(value)
+                    );
+                    // values.fechaPermiso = JSON.stringify(value);
+                    values.fechaPermiso = dayjs(value);
                   }}
                   fullWidth
-                  views={['year', 'month', 'day']}                  
+                  views={["year", "month", "day"]}
                   sx={{ mb: 3 }}
                 />
               </LocalizationProvider>
 
               <LoadingButton
                 type="submit"
-                disabled={isSubmitting}
-                loading={isSubmitting}
+                disabled={isLoading}
+                loading={isLoading}
                 variant="contained"
                 fullWidth
                 sx={{ mb: 3 }}

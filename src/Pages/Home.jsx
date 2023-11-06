@@ -16,6 +16,7 @@ import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
+import { v4 as uuid } from 'uuid';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -35,26 +36,26 @@ const columns = [
   },
   {
     field: "nombreEmpleado",
-    headerName: "Nombre",
+    headerName: "Name",
     width: 150,
     editable: false,
   },
   {
     field: "apellidoEmpleado",
-    headerName: "Apellido",
+    headerName: "Last name",
     width: 150,
     editable: false,
   },
   {
     field: "tipoPermisoDesc",
-    headerName: "Permiso",
+    headerName: "Permission Type",
     // type: 'number',
-    width: 80,
+    width: 150,
     editable: false,
   },
   {
     field: "fechaPermiso",
-    headerName: "Fecha Permiso",
+    headerName: "Permission Date",
     description: "Fecha en que se otorga el permiso.",
     type: "datetime",
     width: 180,
@@ -81,11 +82,16 @@ const Home = () => {
   const [open, setOpen] = React.useState(false);
   const [updatedData, setUpdatedData] = useState(false);
   const handleUpdateData = () => setUpdatedData(false);
+  const [idGuiid, setIdGuiid] = useState("")
 
   const handleModifyPermission = (dataId) => {
-    console.log("click id", dataId);
-
     setIdToModify(dataId);    
+
+    const newUuid = uuid();
+    setIdGuiid(newUuid);
+
+    console.log("click id", dataId);
+    console.log("newUuid", newUuid);
   };
 
 
@@ -122,6 +128,9 @@ const Home = () => {
           setOpen(false);
           setIsLoading(false);
           //setUpdatedData(false);
+
+          const newUuid = uuid();
+          setIdGuiid(newUuid);
         }
       });
     } catch {
@@ -172,7 +181,7 @@ const Home = () => {
                 rows={permissionList}
                 columns={columns}
                 onRowClick={(rows) => {
-                  handleModifyPermission(rows.id);
+                  handleModifyPermission(rows.id, idGuiid);
                 }}
                 initialState={{
                   pagination: {
@@ -203,7 +212,7 @@ const Home = () => {
         {/* Modify section */}
         <Grid item xs={4} mt={4}>
           <Item>
-            {idToModify ? <ModifyPermission idToModify={idToModify}  setUpdatedData={setUpdatedData} /> : ""}
+            {idToModify ? <ModifyPermission idToModify={idToModify} idGuiid={idGuiid}  setUpdatedData={setUpdatedData} /> : ""}
           </Item>
         </Grid>
       </Grid>

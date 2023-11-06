@@ -74,10 +74,10 @@ const ValidatePermission = () => {
 
       resetForm();
     } catch (error) {
-      console.log(error.code);
-      console.log(error.message);
-      if (error.code === "auth/email-already-in-use") {
-        setErrors({ email: "Email already in use" });
+      console.log(error);
+      //console.log(error.message);
+      if (error.code === "Error_generic") {
+        setErrors({ nombreEmpleado: "Error_generic" });
       }
     } finally {
       setSubmitting(false);
