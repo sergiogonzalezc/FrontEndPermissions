@@ -296,6 +296,7 @@ const ModifyPermission = ({ idToModify, idGuiid, setUpdatedData }) => {
       </Backdrop>
 
       <Box sx={{ mt: 8, maxWidth: 400, mx: "auto", textAlign: "center" }}>
+
         <Avatar sx={{ mx: "auto", bgcolor: "#444" }}>
           <LockOutlinedIcon />
         </Avatar>
